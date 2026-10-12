@@ -120,7 +120,7 @@ apps/web/e2e/      Playwright user journeys and accessibility checks
 migrations/        Versioned Alembic schema
 tests/             API, authorization, concurrency and provider contract tests
 scripts/           Evaluation, packaging and isolated browser-test server
-docs/              Setup, architecture, evaluation, demo and career materials
+docs/              Setup, architecture, evaluation, demo and verification
 .github/workflows/ Automated verification on pushes and pull requests
 run.py             One-click PyCharm application entry point
 ```
