@@ -1,0 +1,33 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: relay
+      POSTGRES_PASSWORD: ${RELAY_POSTGRES_PASSWORD:-relay-local-development}
+      POSTGRES_DB: relay
+    volumes:
+      - relay-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relay -d relay"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      RELAY_DATABASE_URL: postgresql+psycopg://relay:${RELAY_POSTGRES_PASSWORD:-relay-local-development}@database:5432/relay
+      RELAY_SECRET_KEY: ${RELAY_SECRET_KEY:-local-compose-secret-change-before-deploying-12345}
+      RELAY_AI_PROVIDER: ${RELAY_AI_PROVIDER:-extractive}
+      RELAY_OPENAI_API_KEY: ${RELAY_OPENAI_API_KEY:-}
+      RELAY_OPENAI_MODEL: ${RELAY_OPENAI_MODEL:-gpt-4.1-mini}
+      RELAY_DEMO_ENABLED: ${RELAY_DEMO_ENABLED:-true}
+      RELAY_COOKIE_SECURE: ${RELAY_COOKIE_SECURE:-false}
+      RELAY_ALLOWED_ORIGINS: '${RELAY_ALLOWED_ORIGINS:-["http://127.0.0.1:8000","http://localhost:8000"]}'
+    depends_on:
+      database:
+        condition: service_healthy
+    init: true
+volumes:
+  relay-postgres:

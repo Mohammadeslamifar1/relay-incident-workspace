@@ -1,0 +1,46 @@
+name: Verify Relay
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: python -m venv .venv
+      - run: .venv/bin/python -m pip install -c requirements.lock -e ".[dev]"
+      - run: .venv/bin/python -m black --check apps/api tests scripts migrations run.py
+      - run: .venv/bin/python -m isort --check-only apps/api tests scripts migrations run.py
+      - run: .venv/bin/python -m flake8 apps/api tests scripts migrations run.py
+      - run: .venv/bin/python -m pytest --cov=relay --cov-fail-under=90
+      - run: .venv/bin/python -m alembic upgrade head
+      - run: .venv/bin/python -m alembic check
+      - run: npm ci --prefix apps/web
+      - run: npm run format:check --prefix apps/web
+      - run: npm run build --prefix apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npm run test:e2e --prefix apps/web
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7

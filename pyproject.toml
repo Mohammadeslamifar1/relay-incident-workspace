@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "relay-incident-workspace"
+version = "0.1.0"
+description = "An evidence-first AI incident workspace with reviewable decisions."
+readme = "README.md"
+license = "MIT"
+authors = [{name = "Mohammad Eslamifar"}]
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn[standard]>=0.34,<1",
+  "sqlalchemy>=2.0,<3", "alembic>=1.15,<2", "pydantic-settings>=2.8,<3",
+  "httpx>=0.28,<1", "PyJWT>=2.10,<3", "argon2-cffi>=23.1,<26",
+  "psycopg[binary]>=3.2,<4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "black>=25,<27", "isort>=6,<8", "flake8>=7,<9"]
+
+[project.urls]
+Repository = "https://github.com/Mohammadeslamifar1/relay-incident-workspace"
+Issues = "https://github.com/Mohammadeslamifar1/relay-incident-workspace/issues"
+Documentation = "https://github.com/Mohammadeslamifar1/relay-incident-workspace#readme"
+
+[tool.setuptools.packages.find]
+where = ["apps/api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["apps/api"]
+addopts = "-q"
+
+[tool.black]
+target-version = ["py312"]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = [".venv", "node_modules"]

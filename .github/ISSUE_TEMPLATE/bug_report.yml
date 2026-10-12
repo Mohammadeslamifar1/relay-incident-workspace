@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a reproducible problem in Relay.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "For security vulnerabilities, use private vulnerability reporting. Do not include credentials, real incident data, or private documents."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Expected and actual behavior
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include a minimal example using fictional data.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Python and Node versions, browser, commit SHA, SQLite or PostgreSQL"
+    validations:
+      required: true

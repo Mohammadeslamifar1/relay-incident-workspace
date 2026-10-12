@@ -1,0 +1,18 @@
+name: Feature proposal
+description: Suggest an improvement with a concrete use case.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the user or operator need.
+    validations:
+      required: true
+  - type: textarea
+    id: approach
+    attributes:
+      label: Proposed approach and tradeoffs
+      description: Include alternatives and how success could be measured.
+    validations:
+      required: true
