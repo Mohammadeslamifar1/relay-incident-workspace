@@ -54,6 +54,7 @@ export default function App() {
   });
   const health = useQuery({ queryKey: ['health'], queryFn: () => api<Health>('/health') });
   const [location, setLocation] = useState(readLocation);
+  const routeHashRef = useRef(window.location.hash);
   const [query, setQuery] = useState('');
   const [newIncident, setNewIncident] = useState(false);
   const [help, setHelp] = useState(false);
@@ -61,13 +62,18 @@ export default function App() {
   const [notice, setNotice] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   const { page, incidentId } = location;
-  function navigate(next: Page, id?: string) {
+  function navigate(next: Page, id?: string, preserveQuery = false) {
     window.location.hash = id ? `${next}/${id}` : next;
-    setQuery('');
+    routeHashRef.current = window.location.hash;
+    setLocation(readLocation());
+    if (!preserveQuery) setQuery('');
     setMobileNav(false);
   }
   useEffect(() => {
     const update = () => {
+      // App navigation already applied this route; a late event must not reset search.
+      if (routeHashRef.current === window.location.hash) return;
+      routeHashRef.current = window.location.hash;
       setLocation(readLocation());
       setQuery('');
     };
@@ -254,7 +260,7 @@ export default function App() {
                     !['knowledge', 'activity', 'overview', 'incidents'].includes(page) ||
                     incidentId
                   ) {
-                    window.location.hash = 'incidents';
+                    navigate('incidents', undefined, true);
                   }
                 }}
               />

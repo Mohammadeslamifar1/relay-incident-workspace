@@ -81,9 +81,25 @@ test('new incident abstains without matching sources and search works', async ({
   await expect(page.getByText('Insufficient matching evidence', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'All incidents', exact: true }).click();
   await page.getByLabel('Search workspace').fill('lunar');
+  await page.evaluate(() => window.dispatchEvent(new HashChangeEvent('hashchange')));
+  await expect(page.getByLabel('Search workspace')).toHaveValue('lunar');
   await expect(page.locator('.incident-row')).toHaveCount(1);
   await page.getByLabel('Search workspace').fill('nothing-matches');
   await expect(page.getByRole('heading', { name: 'No matching incidents' })).toBeVisible();
+});
+
+test('global search preserves text across routes and browser back resets it', async ({ page }) => {
+  await demo(page);
+  await page.getByRole('button', { name: /Quality lab/ }).click();
+  await expect(page).toHaveURL(/#evaluations$/);
+  await page.getByLabel('Search workspace').fill('checkout');
+  await expect(page).toHaveURL(/#incidents$/);
+  await expect(page.getByLabel('Search workspace')).toHaveValue('checkout');
+  await expect(page.locator('.incident-row')).toHaveCount(1);
+  await page.goBack();
+  await expect(page).toHaveURL(/#evaluations$/);
+  await expect(page.getByLabel('Search workspace')).toHaveValue('');
+  await expect(page.getByRole('button', { name: 'Run evaluation', exact: true })).toBeVisible();
 });
 
 test('quality lab persists a repeatable baseline', async ({ page }) => {
